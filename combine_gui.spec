@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['combine_gui.py'],
+    ['script_gen\\combine_gui.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['script_gen\\assets\\icon\\script.ico'],
 )
