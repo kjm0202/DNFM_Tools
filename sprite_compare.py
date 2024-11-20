@@ -48,6 +48,7 @@ src_directory = r'C:\Users\kjm19\Documents\AssetStudio.net472_v0.16.53\exported_
 dst_directory = r'C:\Users\kjm19\Documents\AssetStudio.net472_v0.16.53\exported_240822\Sprite'
 output_directory = r'C:\Users\kjm19\Documents\cmp'
 
+
 # 고유 파일을 찾음
 unique_files = find_unique_files(src_directory, dst_directory)
 

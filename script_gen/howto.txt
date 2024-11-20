@@ -1,1 +1,5 @@
+cython --embed -o output_file.c input_file.py
+
+gcc -o .\script_gen\merge .\script_gen\merge.c $(python3-config --cflags --ldflags)
+
 gcc -o .\script_gen\merge .\script_gen\merge.c -IC:\Users\pnkslab05\AppData\Local\Programs\Python\Python313\include -LC:\Users\pnkslab05\AppData\Local\Programs\Python\Python313\libs -lpython313 -municode -mwindows
