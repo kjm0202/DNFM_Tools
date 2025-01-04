@@ -7,17 +7,17 @@ import webbrowser
 import shutil
 from datetime import datetime
 
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+# def resource_path(relative_path):
+#     try:
+#         base_path = sys._MEIPASS
+#     except Exception:
+#         base_path = os.path.abspath(".")
+#     return os.path.join(base_path, relative_path)
 
 # Combine script files
 def combine_script_files(directory, output_file):
     try:
-        script_files = [os.path.join(root, file) for root, _, files in os.walk(directory) for file in files if file.startswith('script_')]
+        script_files = [os.path.join(root, file) for root, _, files in os.walk(directory) for file in files if file.endswith('.bytes')]
         if not script_files:
             messagebox.showerror("스크립트 발견 불가", "선택한 경로에서 스크립트 파일을 찾을 수 없습니다.")
             return
@@ -59,10 +59,10 @@ def run_comparison():
     file2_path = file2_var.get()
     output_path = str(Path.home() / "Downloads" / "unique_contents_in_new_script.txt")
     if not file1_path or not os.path.isfile(file1_path):
-        messagebox.showerror("Error", "Please select a valid first file.")
+        messagebox.showerror("경고", "첫번째 경로에 올바른 파일을 지정하세요.")
         return
     if not file2_path or not os.path.isfile(file2_path):
-        messagebox.showerror("Error", "Please select a valid second file.")
+        messagebox.showerror("경고", "두번째 경로에 올바른 파일을 지정하세요.")
         return
     try:
         with open(file1_path, 'r', encoding='utf-8', errors='ignore') as f1, open(file2_path, 'r', encoding='utf-8', errors='ignore') as f2:
@@ -71,15 +71,15 @@ def run_comparison():
             unique_lines = file2_lines - file1_lines
         with open(output_path, 'w', encoding='utf-8') as outfile:
             outfile.writelines(unique_lines)
-        messagebox.showinfo("Success", f"Unique content has been written to {output_path}")
+        messagebox.showinfo("석섹스", f"{output_path}에 추가된 문구 저장 완료")
     except Exception as e:
-        messagebox.showerror("Error", f"Could not process files: {e}")
+        messagebox.showerror("오류", f"파일 처리 실패: {e}")
 
 def get_files_in_directory(directory):
     try:
         return os.listdir(directory)
     except Exception as e:
-        print(f"Could not read directory {directory}: {e}")
+        print(f"디렉토리 {directory} 를 읽을 수 없음: {e}")
         return []
 
 def get_base_file_name(file_name):
@@ -101,9 +101,9 @@ def copy_unique_files_to_directory(unique_files, src_directory, output_directory
         dst_file_path = os.path.join(output_directory, file)
         try:
             shutil.copy2(src_file_path, dst_file_path)
-            print(f"Copied {file} to {output_directory}")
+            print(f"{output_directory}에 {file} 저장 완료.")
         except Exception as e:
-            print(f"Could not copy {file} to {output_directory}: {e}")
+            print(f"{output_directory}에 {file} 복사 실패 : {e}")
 
 def select_src_directory():
     src_directory = filedialog.askdirectory()
@@ -117,16 +117,17 @@ def run_sprite_comparison():
     src_directory = src_dir_var.get()
     dst_directory = dst_dir_var.get()
     if not src_directory or not dst_directory:
-        messagebox.showerror("Error", "Both directories must be selected.")
+        messagebox.showerror("오류", "두 디렉토리 모두 지정하셔야 합니다.")
         return
     unique_files = find_unique_files(src_directory, dst_directory)
     if unique_files:
         today = datetime.today().strftime('%y%m%d')
-        output_directory = os.path.join(os.path.expanduser('~'), 'Downloads', f'unique_sprites_{today}')
+        current_time = datetime.now().strftime('%H%M%S')
+        output_directory = os.path.join(os.path.expanduser('~'), 'Downloads', f'unique_sprites_{today}_{current_time}')
         copy_unique_files_to_directory(unique_files, dst_directory, output_directory)
-        messagebox.showinfo("Success", f"Found {len(unique_files)} unique files. Copied to {output_directory}.")
+        messagebox.showinfo("성공", f"{len(unique_files)}개의 새로운 파일 발견. {output_directory}에 저장 완료.")
     else:
-        messagebox.showinfo("Info", "No unique files found in the second folder.")
+        messagebox.showinfo("성?공", "새로운 파일을 찾지 못했습니다.")
 
 
 # Main GUI
@@ -141,6 +142,7 @@ style.configure("TNotebook", background="#f0f0f0")
 style.configure("TNotebook.Tab", font=("Segoe UI", 10), padding=(10, 5))
 style.configure("TLabel", background="#f0f0f0", font=("Segoe UI", 10))
 style.configure("TButton", font=("Segoe UI", 10), padding=5)
+style.configure("TEntry", font=("Segoe UI", 10), padding=5)
 style.map("TButton", background=[("active", "#d6d6d6")])
 
 # Notebook (tabbed interface)
@@ -152,7 +154,9 @@ combine_frame = ttk.Frame(notebook, style="TFrame")
 notebook.add(combine_frame, text="스크립트 합체")
 
 input_folder_var = tk.StringVar()
-ttk.Label(combine_frame, text="스크립트가 있는 폴더를 선택하세요.").pack(pady=10)
+tk.Label(combine_frame, text="스크립트가 있는 폴더를 선택하세요.").pack(pady=10)
+tk.Label(combine_frame, text=r"(보통은 C:\Program Files\Nexon\DNFM\DNFM_Data\StreamingAssets\bundles)").pack(pady=10)
+
 folder_frame = ttk.Frame(combine_frame)
 folder_frame.pack(pady=10)
 ttk.Entry(folder_frame, textvariable=input_folder_var, width=60).pack(side=tk.LEFT, padx=10)
@@ -170,13 +174,13 @@ notebook.add(compare_frame, text="스크립트 비교")
 
 file1_var = tk.StringVar()
 file2_var = tk.StringVar()
-ttk.Label(compare_frame, text="구버전 통합 스크립트 파일:").pack(pady=5)
+tk.Label(compare_frame, text="구버전 통합 스크립트 파일:").pack(pady=5)
 file1_frame = ttk.Frame(compare_frame)
 file1_frame.pack(pady=5)
 ttk.Entry(file1_frame, textvariable=file1_var, width=60).pack(side=tk.LEFT, padx=10)
 ttk.Button(file1_frame, text="탐색", command=select_file1).pack(side=tk.LEFT)
 
-ttk.Label(compare_frame, text="신버전 통합 스크립트 파일:").pack(pady=5)
+tk.Label(compare_frame, text="신버전 통합 스크립트 파일:").pack(pady=5)
 file2_frame = ttk.Frame(compare_frame)
 file2_frame.pack(pady=5)
 ttk.Entry(file2_frame, textvariable=file2_var, width=60).pack(side=tk.LEFT, padx=10)
@@ -191,13 +195,17 @@ notebook.add(sprite_frame, text="Sprite 비교")
 src_dir_var = tk.StringVar()
 dst_dir_var = tk.StringVar()
 
-ttk.Label(sprite_frame, text="구버전 디렉토리를 선택하세요:").pack(pady=5)
-ttk.Entry(sprite_frame, textvariable=src_dir_var, width=50).pack(pady=5)
-ttk.Button(sprite_frame, text="탐색", command=select_src_directory).pack(pady=5)
+tk.Label(sprite_frame, text="구버전 Sprite가 담긴 디렉토리를 선택하세요:").pack(pady=5)
+src_frame = ttk.Frame(sprite_frame)
+src_frame.pack(pady=5)
+ttk.Entry(src_frame, textvariable=src_dir_var, width=50).pack(side=tk.LEFT, padx=10)
+ttk.Button(src_frame, text="탐색", command=select_src_directory).pack(side=tk.LEFT)
 
-ttk.Label(sprite_frame, text="신버전 디렉토리를 선택하세요:").pack(pady=5)
-ttk.Entry(sprite_frame, textvariable=dst_dir_var, width=50).pack(pady=5)
-ttk.Button(sprite_frame, text="탐색", command=select_dst_directory).pack(pady=5)
+tk.Label(sprite_frame, text="신버전 Sprite가 담긴 디렉토리를 선택하세요:").pack(pady=5)
+dst_frame = ttk.Frame(sprite_frame)
+dst_frame.pack(pady=5)
+ttk.Entry(dst_frame, textvariable=dst_dir_var, width=50).pack(side=tk.LEFT, padx=10)
+ttk.Button(dst_frame, text="탐색", command=select_dst_directory).pack(side=tk.LEFT)
 
 ttk.Button(sprite_frame, text="추가된 파일 찾기", command=run_sprite_comparison).pack(pady=20)
 
@@ -205,7 +213,7 @@ ttk.Button(sprite_frame, text="추가된 파일 찾기", command=run_sprite_comp
 about_frame = ttk.Frame(notebook)
 notebook.add(about_frame, text="프로그램 정보")
 
-tk.Label(about_frame, text="스크립트 도구 v0.1").pack(pady=10)
+ttk.Label(about_frame, text="스크립트 도구 v0.1").pack(pady=30)
 tk.Label(about_frame, text="이 도구는 던전앤파이터 모바일의 스크립트를 합치고 비교하는 기능을 제공합니다.").pack(pady=10)
 tk.Label(about_frame, text="Made by 청두헌터즈").pack(pady=10)
 gall_label = tk.Label(about_frame, text=r"던전앤파이터 M 갤러리로 가기", fg="blue", cursor="hand2", font="Helvetica 10 underline")
